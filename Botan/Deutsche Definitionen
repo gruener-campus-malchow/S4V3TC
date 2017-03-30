@@ -1,0 +1,14 @@
+Pull-Request
+    Es handelt sich um Mails, in denen Programmierer "A" den Programmierer "B" darum bittet, 
+    die von "A" in einem Git-Tree gesammelten Änderungen in den von "B" verwalteten Code zu integrieren; 
+    "B" muss dazu git auf seinem System anweisen, die Änderungen aus dem zumeist auf einem öffentlichen 
+    Internet-Server liegenden Git-Tree von "A" zu ziehen 
+    
+Commit
+    Commit ist ein Ausdruck aus der Softwaretechnik, der die bestätigende Freischaltung einer Änderung beschreibt.
+    
+Branch
+    Eine Verzweigung auf eie andere Datei.
+    
+clone
+    Eine oder mehrere Datein "kopieren" und in einem anderen Verzeichnis speichern
