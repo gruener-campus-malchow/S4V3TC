@@ -1,0 +1,25 @@
+Ablaufplan wurde Fertiggestellt:
+
+ 
+
+#Start
+signal='open_door'
+#signal='close_door'
+#Verzweigung Ja/nein ┐
+#if Nein dann │
+'Stop'          │
+#if ja dann < ┘
+#logfile
+#Treiberladen
+#Verzweigung auf/zu  ┐
+#if Auf               │ ┐
+#Logfile               │ │
+#if zu               < ┘ │ ┐
+#log file                 │ │
+#Verzweigung ja/nein < ┘<┘┐
+#if ja                    ┐ │
+#logfile                │ │
+#if nein                 <┘
+#logfile
+#if ja kein Signal
+#if nein Signal: Tür auf oder zu
