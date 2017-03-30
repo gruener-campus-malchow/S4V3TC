@@ -1,0 +1,197 @@
+
+Für die die Erweiterte Englischkenntnisse und Programmierkenntnisse haben können gerne gleich mit dem Originaltutorial arbeiten
+
+Link dazu: https://medium.com/@edoardo849/turn-a-raspberrypi-3-into-a-wifi-router-hotspot-41b03500080e#.korpg4rw7
+
+ 
+Für die die diese nicht besitzen hier einmal auf Deutsch und für Amateure
+
+ 
+
+1) Schließe dein Rasperry Pi 3 (ich habe mit einem Raspberry Pi 3 Model B vi. 2 gearbeitet, Infos stehen auf der Platine oder Verpackung) an mit einem Monitor, Maus & Tastatur, Stromkabel und ganz wichtig: einem LAN-Kabel
+
+2) Sofern kein Betriebssystem drauf ist kannst du eins raufziehen und den Pi starten
+
+3) Ist der Pi gestartet und fertig hochgefahren fängst du an indem du einmal das Terminal auf dem Pi öffnest.
+
+4) Zunächst gibts du folgenden Befehl ein
+
+ifconfig -a
+
+5) du solltest nun einen Haufen von Statusmeldungen sehen, sieh aber einmal nach ob du Meldungen von wlan0 und eth0 hast, wenn ja kannst du nun anfangen
+
+6) du brauchst 2 Programme, zum einem hostapd und zum anderen einen dhcp server, beide installierst du mit folgenden Befehlen im Terminal 
+
+sudo apt-get update
+sudo apt-get install hostapd isc-dhcp-server
+
+7) nachdem alles installiert ist mache einmal eine backup datei von den Standartdateien des dhcp Servers
+
+sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.default
+
+8) editiere jetzt die Normale Datei
+
+sudo nano /etc/dhcp/dhcpd.conf
+
+9) suche folgende Zeilen
+
+option domain-name "example.org";
+option domain-name-servers ns1.example.org, ns2.example.org;
+
+und schreibe sie so um dass sie wie folgt aussehen
+
+#option domain-name "example.org";
+#option domain-name-servers ns1.example.org, ns2.example.org;
+
+10)  und kommentiere folgende Zeilen aus
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+#authoritative;
+
+sodass sie wie folgt aussehen
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+authoritative;
+
+11) geh nun an das Ende der Datei und füge folgendes ein
+
+subnet 192.168.42.0 netmask 255.255.255.0 {
+ range 192.168.42.10 192.168.42.50;
+ option broadcast-address 192.168.42.255;
+ option routers 192.168.42.1;
+ default-lease-time 600;
+ max-lease-time 7200;
+ option domain-name "local";
+ option domain-name-servers 8.8.8.8, 8.8.4.4;
+}
+
+12) nun musst du einrichten welches wlan der dhcp server nutzen soll
+
+sudo nano /etc/default/isc-dhcp-server
+
+12.1) suche folgende codezeile
+
+INTERFACES=""
+
+12.2) und editiere sie entsprechend
+
+INTERFACES="wlan0"
+
+13) Nun müsst ihr das wlan0 konfigurieren
+
+13.1) erstmal müsst ihr es herunterfahren
+
+sudo ifdown wlan0
+
+13.2) mach nun ein backup von der Standartdatei
+
+sudo cp /etc/network/interfaces /etc/network/interfaces.backup
+
+13.3) editiere jetzt die Netzwerk Dateien
+
+sudo nano /etc/network/interfaces
+
+13.4) füge folgendes am Ende ein
+
+auto lo
+
+iface lo inet loopback
+iface eth0 inet dhcp
+
+allow-hotplug wlan0
+
+iface wlan0 inet static
+ address 192.168.42.1
+ netmask 255.255.255.0
+ post-up iw dev $IFACE set power_save off
+
+14) schließe die Datei wieder und ordne dem ganzen eine statische IP hinzu
+
+sudo ifconfig wlan0 192.168.42.1
+
+15) erstelle nun eine Datei und füge folgendes ein (du kannst das ganze auch editieren je nachdem wie du es brauchst)
+
+interface=wlan0
+ssid=WiPi
+hw_mode=g
+channel=6
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=xyz
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+
+16) gebe nun folgenden Command in das Terminal
+
+basename $( readlink /sys/class/net/wlan0/device/driver )
+
+wenn dort nun brcmfmac_sdio steht, ist alles in ordnung
+
+17) mache wieder eine Backupdatei
+
+sudo cp /etc/sysctl.conf /etc/sysctl.conf.backup
+
+18) editiere die config datei
+
+sudo nano /etc/sysctl.conf
+
+19) nehme das # weg for folgender commandozeile
+
+net.ipv4.ip_forward=1
+
+20) aktiviere das ganze dann gleich im terminal
+
+sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
+
+21) schreibe den Iptable um, um eine neue Netzwerkübersetzung zu erschaffen
+
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+sudo iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
+
+22) sage dem Raspberry Pi dass er das automatisch beim Neu Hochfahren machen soll
+
+sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+
+23) editiere mal wieder!
+
+sudo nano /etc/network/interfaces
+
+24) Hänge folgendes ans Ende
+
+up iptables-restore < /etc/iptables.ipv4.nat
+
+25) Die /etc/network/interfaces Datei sollte nun so aussehen
+
+auto lo
+
+iface lo inet loopback
+iface eth0 inet dhcp
+
+allow-hotplug wlan0
+
+ iface wlan0 inet static
+  address 192.168.42.1
+  netmask 255.255.255.0
+
+26) Teste nun deinen Accesspoint
+
+sudo /usr/sbin/hostapd /etc/hostapd/hostapd.conf
+
+27) Der accesspoint läuft nun aber du solltest noch kein Internet haben, stoppe das ganze wieder indem du STRG+C drückst
+
+28) starte nun deinen hostapd und dhcp server
+
+ sudo service hostapd start
+ sudo service isc-dhcp-server start
+
+29) nun kannst du deinen accesspoint erneut starten und diesmal solltest du erfolgreich internet haben
+
+sudo /usr/sbin/hostapd /etc/hostapd/hostapd.conf
