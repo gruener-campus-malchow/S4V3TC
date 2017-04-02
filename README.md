@@ -1,1 +1,1 @@
-...a school project for a wifi-authenticated door 
+... a school project for a door with wifi-authentication instead of a physical key
