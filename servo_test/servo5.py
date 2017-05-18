@@ -14,14 +14,14 @@ def rotate_motor(direction):
 
    acc_rate = 0.1 #sleep in ms - bigger value for slower
 
-# uzs = uhrzeigersinn = clock like
-   uzs_min = 7.2
-   uzs_max = 6.0
+# uzs = uhrzeigersinn = clock like   #ab hier klären
+   uzs_min = 0
+   uzs_max = 4.0
    uzs_rate = -0.05
 # guzs = gegen den uhrzeigersinn = counter clock like
-   guzs_min = 7.2
-   guzs_max = 8.4
-   guzs_rate = 0.05
+   guzs_min = 0
+   guzs_max = 4.4
+   guzs_rate = 0.5
       
    if direction < 0 :
       dc_start = guzs_min
