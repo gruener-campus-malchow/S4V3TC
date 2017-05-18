@@ -5,7 +5,7 @@ Ablaufplan wurde Fertiggestellt:
 #Start
 signal='open_door'
 #signal='close_door'
-#Verzweigung Ja/nein ┐
+#Verzweigung Ja/nein 
 #if Nein dann │
 'Stop'          │
 #if ja dann < ┘
