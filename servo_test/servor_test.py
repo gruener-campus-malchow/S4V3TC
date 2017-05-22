@@ -8,7 +8,7 @@ GPIO.setup(servoPIN, GPIO.OUT)
 
 pwm_frequency = 50 #i.d.R zwischen 40Hz-50Hz (25ms - 20ms)
 duty_cycle = 0 #Tastgrad = Impulsdauer/Impulsabstand
-pause = 2 #seconds
+pause = 0.5 #seconds
 rate = 0.25
 
 # working setup !!!

@@ -12,16 +12,16 @@ def rotate_motor(direction):
    p = GPIO.PWM(servoPIN, frequency) # GPIO 18 als PWM mit 50Hz
    p.start(0) # Initialisierung
 
-   acc_rate = 0.1 #sleep in ms - bigger value for slower
+   acc_rate = 0.1 #sleep in s - bigger value for slower
 
-# uzs = uhrzeigersinn = clock like   #ab hier klären
-   uzs_min = 0
-   uzs_max = 4.0
-   uzs_rate = -0.05
+# uzs = uhrzeigersinn = clock like
+   uzs_min = 7.0
+   uzs_max = 6.0
+   uzs_rate = -0.1
 # guzs = gegen den uhrzeigersinn = counter clock like
-   guzs_min = 0
-   guzs_max = 4.4
-   guzs_rate = 0.5
+   guzs_min = 7.5
+   guzs_max = 8.5
+   guzs_rate = +0.1
       
    if direction < 0 :
       dc_start = guzs_min
@@ -34,7 +34,7 @@ def rotate_motor(direction):
 
    try:
      dc = dc_start
-     while dc in numpy.arange(dc_start, dc_end) :
+     while (dc >= dc_start and dc < dc_end) or (dc <= dc_start and dc > dc_end):
        p.ChangeDutyCycle(dc)
        print 'motor accelerating with dc=' + str(dc) + ' and dc_rate=' + str(dc_rate)
        time.sleep(acc_rate)
